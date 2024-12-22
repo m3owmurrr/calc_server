@@ -3,9 +3,11 @@ package application
 import (
 	"bufio"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
+	"github.com/m3owmurrr/calc/internal/handlers"
 	"github.com/m3owmurrr/calc/pkg/calc"
 )
 
@@ -16,7 +18,7 @@ func NewApplication() *Application {
 	return &Application{}
 }
 
-func (a *Application) Run() error {
+func (a *Application) RunLocal() error {
 	for {
 		log.Println("input expression")
 		reader := bufio.NewReader(os.Stdin)
@@ -37,5 +39,22 @@ func (a *Application) Run() error {
 		} else {
 			log.Println(text, "=", result)
 		}
+	}
+}
+
+func (a *Application) RunServer() {
+	m := http.NewServeMux()
+	m.HandleFunc("POST /calculate", handlers.CalcHandler)
+	m.HandleFunc("GET /health", handlers.HealthHandler)
+
+	server := http.Server{
+		Addr:    "localhost:8080",
+		Handler: m,
+	}
+
+	log.Println("server is running...")
+
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatalf("failed to run server: %v", err)
 	}
 }
