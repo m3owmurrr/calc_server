@@ -33,7 +33,7 @@ func (a *Application) Run() error {
 
 		result, err := calc.Calc(text)
 		if err != nil {
-			log.Println(text, " calculation failed with error: ", err)
+			log.Println(text, "calculation failed with error: ", err)
 		} else {
 			log.Println(text, "=", result)
 		}
