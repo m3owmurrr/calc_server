@@ -2,20 +2,33 @@ package application
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 
+	"github.com/m3owmurrr/calc/internal/config"
 	"github.com/m3owmurrr/calc/internal/handlers"
 	"github.com/m3owmurrr/calc/pkg/calc"
 )
 
 type Application struct {
+	Config *config.Config
 }
 
-func NewApplication() *Application {
-	return &Application{}
+func NewApplication(config *config.Config) *Application {
+	return &Application{
+		Config: config,
+	}
+}
+
+func (a *Application) Run() {
+	if a.Config.RunType == "Local" {
+		a.RunLocal()
+	} else if a.Config.RunType == "Server" {
+		a.RunServer()
+	}
 }
 
 func (a *Application) RunLocal() error {
@@ -47,12 +60,13 @@ func (a *Application) RunServer() {
 	m.HandleFunc("POST /calculate", handlers.CalcHandler)
 	m.HandleFunc("GET /health", handlers.HealthHandler)
 
+	addr := fmt.Sprintf("%v:%v", a.Config.Host, a.Config.Port)
 	server := http.Server{
-		Addr:    "localhost:8080",
+		Addr:    addr,
 		Handler: m,
 	}
 
-	log.Println("server is running...")
+	log.Printf("server is running on %v...", addr)
 
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("failed to run server: %v", err)

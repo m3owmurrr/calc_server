@@ -1,8 +1,12 @@
 package main
 
-import "github.com/m3owmurrr/calc/internal/application"
+import (
+	"github.com/m3owmurrr/calc/internal/application"
+	"github.com/m3owmurrr/calc/internal/config"
+)
 
 func main() {
-	app := application.NewApplication()
-	app.RunServer()
+	conf := config.GetConfig()
+	app := application.NewApplication(conf)
+	app.Run()
 }
